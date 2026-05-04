@@ -8,7 +8,8 @@ import java.util.List;
 public class MainWindow extends JFrame {
 
     private List<JCheckBox> checkboxList = new ArrayList<>();
-    static protected Boolean subWindowOpened = false;
+
+
 
     public MainWindow() {
         setTitle("JL Studio");
@@ -36,7 +37,7 @@ public class MainWindow extends JFrame {
 
     private void loadGrid() {
         // A 4x16 grid (4 tracks, 16 beats)
-        JPanel gridPanel = new JPanel(new GridLayout(4, 16));
+        JPanel gridPanel = new JPanel(new GridLayout(5, 16));
 
         for (int i = 0; i < 64; i++) {
             JCheckBox cb = new JCheckBox();
@@ -79,25 +80,15 @@ public class MainWindow extends JFrame {
         //saveBtn.setPreferredSize(new Dimension(50, 50));
 
         saveBtn.addActionListener(e -> {
-            if (!subWindowOpened) {
-                new SaveWindow();
-
-                subWindowOpened = true;
-            }
+            new SaveWindow(this);
         });
 
         loadBtn.addActionListener(e -> {
-            if (!subWindowOpened) {
-                new LoadWindow();
-                subWindowOpened = true;
-            }
+            new LoadWindow(this);
         });
 
         settingsBtn.addActionListener(e -> {
-            if (!subWindowOpened) {
-                new SettingsWindow();
-                subWindowOpened = true;
-            }
+            new SettingsWindow(this);
         });
 
         toolbar.add(playBtn);
@@ -109,7 +100,5 @@ public class MainWindow extends JFrame {
         add(toolbar, BorderLayout.NORTH);
     }
 
-    public static void subWindowClosed() {
-        subWindowOpened = false;
-    }
+
 }

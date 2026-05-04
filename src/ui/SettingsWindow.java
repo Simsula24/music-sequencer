@@ -5,19 +5,20 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class SettingsWindow extends JFrame {
-    public SettingsWindow() {
+public class SettingsWindow extends JDialog {
+    public SettingsWindow(Frame owner) {
+        super(owner, "Settings", true);
         setTitle("Project Settings");
         setSize(600, 800);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        this.setAlwaysOnTop(true);
+
 
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                MainWindow.subWindowClosed();
+            //    MainWindow.subWindowClosed();
             }
         });
 
@@ -44,7 +45,7 @@ public class SettingsWindow extends JFrame {
 
         delButton.addActionListener(e -> {
             this.dispose();
-            MainWindow.subWindowClosed();
+        //    MainWindow.subWindowClosed();
         });
 
         panel.add(delButton, BorderLayout.CENTER);
