@@ -1,5 +1,10 @@
 package ui;
 
+import logic.AudioTrack;
+
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -8,7 +13,14 @@ import java.util.List;
 public class MainWindow extends JFrame {
 
     private List<JCheckBox> checkboxList = new ArrayList<>();
+    private List<AudioTrack> tracks = new ArrayList<>();
 
+    private Synthesizer synthesizer;
+    private MidiChannel[] midiChannels;
+
+    private boolean isPlaying = false;
+    private int bpm = 120;
+    private Thread playThread;
 
 
     public MainWindow() {
@@ -18,10 +30,11 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
 
         try{
+            loadInstrumentList();
             loadToolbar();
             loadStatusbar();
-            loadInstrumentList();
             loadGrid();
+            initMidi();
         } catch (Exception e) {
             System.err.println("Error loading UI: " + e.getMessage());
         }
@@ -32,20 +45,51 @@ public class MainWindow extends JFrame {
 
     }
 
+    private void initMidi() {
+        try {
+            synthesizer = MidiSystem.getSynthesizer();
+            synthesizer.open();
+            midiChannels = synthesizer.getChannels();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize MIDI: " + e.getMessage());
+        }
+    }
+
     private void loadInstrumentList() {
+        tracks.add(new AudioTrack("Kick Drum", 36));
+        tracks.add(new AudioTrack("Snare Drum", 38));
+        tracks.add(new AudioTrack("Hi-Hat", 42));
+        tracks.add(new AudioTrack("Clap", 39));
     }
 
     private void loadGrid() {
         // A 4x16 grid (4 tracks, 16 beats)
-        JPanel gridPanel = new JPanel(new GridLayout(5, 16));
+        JPanel gridPanel = new JPanel(new GridLayout(4, 17, 5, 5));
 
-        for (int i = 0; i < 64; i++) {
-            JCheckBox cb = new JCheckBox();
-            cb.setIcon(new ImageIcon("res/box32.png"));
-            cb.setSelectedIcon(new ImageIcon("res/box-filled32.png"));
-            cb.setSelected(false);
-            checkboxList.add(cb);
-            gridPanel.add(cb);
+
+        for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
+            AudioTrack currentTrack = tracks.get(trackIndex);
+            JLabel trackLabel = new JLabel(currentTrack.getInstrumentName());
+            trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
+            gridPanel.add(trackLabel);
+
+
+            for (int beatIndex = 0; beatIndex < 16; beatIndex++) {
+                final int t = trackIndex;
+                final int b = beatIndex;
+                JCheckBox cb = new JCheckBox();
+                cb.setIcon(new ImageIcon("res/box32.png"));
+                cb.setSelectedIcon(new ImageIcon("res/box-filled32.png"));
+                cb.setSelected(false);
+
+                // When user clicks the checkbox, update the beat in the AudioTrack model
+                cb.addActionListener(e -> {
+                    currentTrack.setBeat(b, cb.isSelected());
+                });
+
+                checkboxList.add(cb);
+                gridPanel.add(cb);
+            }
         }
 
         add(gridPanel, BorderLayout.CENTER);
