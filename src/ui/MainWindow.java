@@ -158,6 +158,7 @@ public class MainWindow extends JFrame {
     }
 
     private void startSequencer() {
+        if (isPlaying) return;
         isPlaying = true;
         playThread = new Thread(() -> {
             int currentBeat = 0;
