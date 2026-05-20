@@ -154,9 +154,55 @@ public class MainWindow extends JFrame {
     }
 
     private void stopSequencer() {
+        
     }
 
     private void startSequencer() {
+        isPlaying = true;
+        playThread = new Thread(() -> {
+            int currentBeat = 0;
+            while (isPlaying) {
+                final int beatToHighlight = currentBeat;
+
+                // 1. Play active drum sounds for this beat
+                for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
+                    AudioTrack track = tracks.get(trackIndex);
+                    if (track.isBeatActive(beatToHighlight)) {
+                        playMidiNote(track.getMidiNote());
+                    }
+                }
+
+                // 2. Visual Playhead: Highlight current beat column in Swing thread
+                SwingUtilities.invokeLater(() -> {
+                    highlightColumn(beatToHighlight);
+                });
+
+                // 3. Sleep based on the current BPM tempo
+                try {
+                    // Sleep time in milliseconds = 60 seconds / (BPM * 4) since 16 beats are sixteenth notes
+                    int sleepTime = 60000 / (bpm * 4);
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    break; // Thread stopped or interrupted, exit loop
+                }
+
+                // 4. Remove active playhead highlight from column
+                SwingUtilities.invokeLater(() -> {
+                    removeHighlightColumn(beatToHighlight);
+                });
+
+                // Advance to the next beat (loop back to 0 after beat 15)
+                currentBeat = (currentBeat + 1) % 16;
+            }
+        });
+
+        playThread.start();
+    }
+
+    private void removeHighlightColumn(int beatToHighlight) {
+    }
+
+    private void highlightColumn(int beatToHighlight) {
     }
 
 
