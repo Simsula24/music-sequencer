@@ -96,8 +96,14 @@ public class MainWindow extends JFrame {
         System.out.println(checkboxList);
     }
 
+    private void playMidiNote(int noteNumber) {
+        if (midiChannels != null && midiChannels.length > 9) {
+            midiChannels[9].noteOn(noteNumber, 100);
+        }
+    }
+
     private void loadStatusbar() {
-        JLabel statusLabel = new JLabel(" Ready to create music...");
+        JLabel statusLabel = new JLabel(" Ready...");
         add(statusLabel, BorderLayout.SOUTH);
     }
 
@@ -123,6 +129,9 @@ public class MainWindow extends JFrame {
         stopBtn.setIcon(new ImageIcon("res/stop16.png"));
         //saveBtn.setPreferredSize(new Dimension(50, 50));
 
+        playBtn.addActionListener(e -> startSequencer());
+        stopBtn.addActionListener(e -> stopSequencer());
+
         saveBtn.addActionListener(e -> {
             new SaveWindow(this);
         });
@@ -142,6 +151,12 @@ public class MainWindow extends JFrame {
         toolbar.add(loadBtn);
 
         add(toolbar, BorderLayout.NORTH);
+    }
+
+    private void stopSequencer() {
+    }
+
+    private void startSequencer() {
     }
 
 
