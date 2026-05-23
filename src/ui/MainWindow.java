@@ -222,9 +222,17 @@ public class MainWindow extends JFrame {
         for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
             int cbIndex = trackIndex * 16 + beatIndex;
             JCheckBox cb = checkboxList.get(cbIndex);
-            cb.setBackground(new Color(173, 216, 230)); // Nice soft blue highlight
+            cb.setBackground(new Color(173, 216, 230));
             cb.setOpaque(true);
         }
+    }
+
+    public int getBpm() {
+        return bpm;
+    }
+
+    public void setBpm(int newBpm) {
+        this.bpm = newBpm;
     }
 
 

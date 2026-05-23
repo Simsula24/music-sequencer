@@ -6,8 +6,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class SettingsWindow extends JDialog {
-    public SettingsWindow(Frame owner) {
+    private MainWindow mainWindow;
+    private JTextField bpmField;
+
+    public SettingsWindow(MainWindow owner) {
         super(owner, "Settings", true);
+        this.mainWindow = owner;
         setTitle("Project Settings");
         setSize(600, 800);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -48,6 +52,28 @@ public class SettingsWindow extends JDialog {
         //    MainWindow.subWindowClosed();
         });
 
+        saveButton.addActionListener(e -> {
+            try {
+                String input = bpmField.getText().trim();
+                int newBpm = Integer.parseInt(input);
+
+                if (newBpm < 30 || newBpm > 300) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please enter a tempo between 30 and 300 BPM.",
+                            "Tempo Out of Range",
+                            JOptionPane.WARNING_MESSAGE);
+                } else {
+                    mainWindow.setBpm(newBpm);
+                    this.dispose();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Please enter a valid whole number for the tempo.",
+                        "Invalid Tempo Format",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         panel.add(delButton, BorderLayout.CENTER);
         panel.add(saveButton, BorderLayout.CENTER);
 
@@ -56,7 +82,7 @@ public class SettingsWindow extends JDialog {
 
     private void loadSettings() {
         JPanel panel = new JPanel(new BorderLayout());
-        JTextField bpmField = new JTextField();
+        bpmField = new JTextField(String.valueOf(mainWindow.getBpm()));
         JLabel bpmText = new JLabel("Set project tempo (in BPM)");
 
 
