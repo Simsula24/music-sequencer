@@ -153,7 +153,7 @@ public class MainWindow extends JFrame {
         add(toolbar, BorderLayout.NORTH);
     }
 
-    private void stopSequencer() {
+    public void stopSequencer() {
         isPlaying = false;
         if (playThread != null) {
             playThread.interrupt();
@@ -167,7 +167,7 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private void startSequencer() {
+    public void startSequencer() {
         if (isPlaying) return;
         isPlaying = true;
         playThread = new Thread(() -> {
@@ -233,6 +233,26 @@ public class MainWindow extends JFrame {
 
     public void setBpm(int newBpm) {
         this.bpm = newBpm;
+    }
+
+    public String getGridState() {
+        StringBuilder sb = new StringBuilder();
+        for (JCheckBox cb : checkboxList) {
+            sb.append(cb.isSelected() ? "1" : "0");
+        }
+        return sb.toString();
+    }
+
+    public void setGridState(String state) {
+        if (state == null || state.length() != 64) return;
+        for (int i = 0; i < 64; i++) {
+            boolean checked = state.charAt(i) == '1';
+            checkboxList.get(i).setSelected(checked);
+
+            int trackIndex = i / 16;
+            int beatIndex = i % 16;
+            tracks.get(trackIndex).setBeat(beatIndex, checked);
+        }
     }
 
 
