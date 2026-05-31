@@ -5,10 +5,17 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+/**
+ * Window for loading a project from a file.
+ */
 public class LoadWindow extends JDialog {
     private MainWindow mainWindow;
     private JTextField fileField;
 
+    /**
+     * Load window constructor.
+     * @param owner The parent MainWindow reference.
+     */
     public LoadWindow(MainWindow owner) {
         super(owner, "Load Project", true);
         this.mainWindow = owner;
@@ -28,6 +35,9 @@ public class LoadWindow extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Initializes the UI.
+     */
     private void loadLoadUI() {
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 5, 5));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
@@ -60,7 +70,6 @@ public class LoadWindow extends JDialog {
                 return;
             }
 
-
             try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
 
                 String bpmLine = reader.readLine();
@@ -75,9 +84,7 @@ public class LoadWindow extends JDialog {
                     throw new Exception("Invalid or incomplete grid data.");
                 }
 
-
                 mainWindow.stopSequencer();
-
 
                 mainWindow.setBpm(loadedBpm);
                 mainWindow.setGridState(gridLine);

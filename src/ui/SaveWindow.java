@@ -5,6 +5,9 @@ import java.awt.*;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 
+/**
+ * Dialog window for saving the project to a file.
+ */
 public class SaveWindow extends JDialog {
     private MainWindow mainWindow;
     private JTextField fileField;
@@ -28,6 +31,9 @@ public class SaveWindow extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Loads the UI for the save dialog window
+     */
     private void loadSaveUI() {
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 5, 5));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
@@ -64,6 +70,7 @@ public class SaveWindow extends JDialog {
 
                 writer.println(mainWindow.getBpm());
 
+                // Write current grid state string
                 writer.println(mainWindow.getGridState());
 
                 JOptionPane.showMessageDialog(this,

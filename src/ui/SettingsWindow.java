@@ -5,10 +5,17 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+/**
+ * Dialog window for configuring project settings
+ */
 public class SettingsWindow extends JDialog {
     private MainWindow mainWindow;
     private JTextField bpmField;
 
+    /**
+     * Settings dialog window constructor.
+     * @param owner The parent MainWindow
+     */
     public SettingsWindow(MainWindow owner) {
         super(owner, "Settings", true);
         this.mainWindow = owner;
@@ -17,7 +24,6 @@ public class SettingsWindow extends JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -34,11 +40,11 @@ public class SettingsWindow extends JDialog {
         }
 
         this.setVisible(true);
-
-
-
     }
 
+    /**
+     * Initializes the bottom bar
+     */
     private void loadBottomBar() {
         JPanel panel = new JPanel();
         JButton saveButton = new JButton("Save changes");
@@ -80,21 +86,17 @@ public class SettingsWindow extends JDialog {
         this.add(panel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Loads the UI componets
+     */
     private void loadSettings() {
         JPanel panel = new JPanel(new BorderLayout());
         bpmField = new JTextField(String.valueOf(mainWindow.getBpm()));
         JLabel bpmText = new JLabel("Set project tempo (in BPM)");
 
-
-
-
         panel.add(bpmText, BorderLayout.NORTH);
         panel.add(bpmField, BorderLayout.CENTER);
 
-
-
-
         this.add(panel, BorderLayout.NORTH);
-
     }
 }

@@ -14,7 +14,6 @@ public class MainWindow extends JFrame {
 
     private List<JCheckBox> checkboxList = new ArrayList<>();
     private List<AudioTrack> tracks = new ArrayList<>();
-
     private Synthesizer synthesizer;
     private MidiChannel[] midiChannels;
 
@@ -22,14 +21,16 @@ public class MainWindow extends JFrame {
     private int bpm = 120;
     private Thread playThread;
 
-
+    /**
+     * MainWindow contructor and initialization
+     */
     public MainWindow() {
         setTitle("JL Studio");
         setSize(1000, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        try{
+        try {
             loadInstrumentList();
             loadToolbar();
             loadStatusbar();
@@ -40,11 +41,11 @@ public class MainWindow extends JFrame {
         }
 
         this.setVisible(true);
-
-
-
     }
 
+    /**
+     * MIDI initialization
+     */
     private void initMidi() {
         try {
             synthesizer = MidiSystem.getSynthesizer();
@@ -55,6 +56,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Loads instruments into tracks
+     */
     private void loadInstrumentList() {
         tracks.add(new AudioTrack("Kick Drum", 36));
         tracks.add(new AudioTrack("Snare Drum", 38));
@@ -62,10 +66,11 @@ public class MainWindow extends JFrame {
         tracks.add(new AudioTrack("Clap", 39));
     }
 
+    /**
+     * Loads the grid
+     */
     private void loadGrid() {
-        // A 4x16 grid (4 tracks, 16 beats)
         JPanel gridPanel = new JPanel(new GridLayout(4, 17, 5, 5));
-
 
         for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
             AudioTrack currentTrack = tracks.get(trackIndex);
@@ -73,9 +78,7 @@ public class MainWindow extends JFrame {
             trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
             gridPanel.add(trackLabel);
 
-
             for (int beatIndex = 0; beatIndex < 16; beatIndex++) {
-                final int t = trackIndex;
                 final int b = beatIndex;
                 JCheckBox cb = new JCheckBox();
                 cb.setIcon(new ImageIcon("res/box32.png"));
@@ -96,17 +99,28 @@ public class MainWindow extends JFrame {
         System.out.println(checkboxList);
     }
 
+    /**
+     * Plays a MIDI note
+     * 
+     * @param noteNumber The MIDI note code to be played.
+     */
     private void playMidiNote(int noteNumber) {
         if (midiChannels != null && midiChannels.length > 9) {
             midiChannels[9].noteOn(noteNumber, 100);
         }
     }
 
+    /**
+     * Loads the status bar label at the bottom of the window
+     */
     private void loadStatusbar() {
         JLabel statusLabel = new JLabel(" Ready...");
         add(statusLabel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Initializes the toolbar and buttons
+     */
     private void loadToolbar() {
         JPanel toolbar = new JPanel();
 
@@ -127,7 +141,6 @@ public class MainWindow extends JFrame {
         settingsBtn.setIcon(new ImageIcon("res/gear16.png"));
         playBtn.setIcon(new ImageIcon("res/play16.png"));
         stopBtn.setIcon(new ImageIcon("res/stop16.png"));
-        //saveBtn.setPreferredSize(new Dimension(50, 50));
 
         playBtn.addActionListener(e -> startSequencer());
         stopBtn.addActionListener(e -> stopSequencer());
@@ -153,6 +166,9 @@ public class MainWindow extends JFrame {
         add(toolbar, BorderLayout.NORTH);
     }
 
+    /**
+     * Stops the sequencer playback thread and resets column highlighting in the UI.
+     */
     public void stopSequencer() {
         isPlaying = false;
         if (playThread != null) {
@@ -167,14 +183,19 @@ public class MainWindow extends JFrame {
         });
     }
 
+    /**
+     * Starts playback loop in a background thread.
+     */
     public void startSequencer() {
-        if (isPlaying) return;
+        if (isPlaying)
+            return;
         isPlaying = true;
         playThread = new Thread(() -> {
             int currentBeat = 0;
             while (isPlaying) {
                 final int beatToHighlight = currentBeat;
 
+                // Play active MIDI notes for the current step/beat across all tracks
                 for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
                     AudioTrack track = tracks.get(trackIndex);
                     if (track.isBeatActive(beatToHighlight)) {
@@ -182,25 +203,22 @@ public class MainWindow extends JFrame {
                     }
                 }
 
-
+                // Highlight the active column on the Swing thread
                 SwingUtilities.invokeLater(() -> {
                     highlightColumn(beatToHighlight);
                 });
 
-
                 try {
-
                     int sleepTime = 60000 / (bpm * 4);
                     Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     break;
                 }
 
-
+                // Remove highlight once step has passed
                 SwingUtilities.invokeLater(() -> {
                     removeHighlightColumn(beatToHighlight);
                 });
-
 
                 currentBeat = (currentBeat + 1) % 16;
             }
@@ -218,6 +236,12 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Highlights the background of the specified beat column checkboxes with light
+     * blue.
+     * 
+     * @param beatIndex The column index.
+     */
     private void highlightColumn(int beatIndex) {
         for (int trackIndex = 0; trackIndex < 4; trackIndex++) {
             int cbIndex = trackIndex * 16 + beatIndex;
@@ -235,6 +259,12 @@ public class MainWindow extends JFrame {
         this.bpm = newBpm;
     }
 
+    /**
+     * Serializes the current states of all 64 check boxes into a 64-character
+     * binary string.
+     * 
+     * @return 64-character string of '0' and '1'.
+     */
     public String getGridState() {
         StringBuilder sb = new StringBuilder();
         for (JCheckBox cb : checkboxList) {
@@ -243,8 +273,15 @@ public class MainWindow extends JFrame {
         return sb.toString();
     }
 
+    /**
+     * Deserializes and updates the sequencer grid check box selections from a
+     * 64-character binary string.
+     * 
+     * @param state 64-character string of '0' and '1'.
+     */
     public void setGridState(String state) {
-        if (state == null || state.length() != 64) return;
+        if (state == null || state.length() != 64)
+            return;
         for (int i = 0; i < 64; i++) {
             boolean checked = state.charAt(i) == '1';
             checkboxList.get(i).setSelected(checked);
@@ -254,6 +291,4 @@ public class MainWindow extends JFrame {
             tracks.get(trackIndex).setBeat(beatIndex, checked);
         }
     }
-
-
 }
